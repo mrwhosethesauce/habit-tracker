@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.habit-heatmap .react-calendar-heatmap .color-empty {
+  fill: #ebedf0;
+}
+.habit-heatmap .react-calendar-heatmap .color-filled {
+  fill: #16a34a;
+}
+.habit-heatmap .react-calendar-heatmap text {
+  font-size: 6px;
+  fill: #6b7280;
+}
+.habit-heatmap .react-calendar-heatmap rect {
+  rx: 2;
+}
