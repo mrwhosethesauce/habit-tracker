@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const connectDB = require('../lib/db');
 const User = require('../models/User');
 const { sendPasswordResetEmail } = require('../lib/email');
+const requireAuth = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -155,6 +156,40 @@ router.post('/reset-password', async (req, res) => {
     res.json({ message: 'Password updated — you can now log in' });
   } catch (err) {
     console.error('reset-password error', err);
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+});
+
+// PUT /password { currentPassword, newPassword } — the logged-in-user
+// equivalent of reset-password. Requires the current password rather than
+// a token, since there's no "forgot" step here — the user is already
+// authenticated, but that alone shouldn't be enough to silently change
+// the password (e.g. from a hijacked but not-yet-logged-out session).
+router.put('/password', requireAuth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body || {};
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Current and new password are required' });
+    }
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters' });
+    }
+
+    await connectDB();
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const match = await bcrypt.compare(currentPassword, user.password);
+    if (!match) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.json({ message: 'Password updated' });
+  } catch (err) {
+    console.error('change-password error', err);
     res.status(500).json({ error: 'Something went wrong' });
   }
 });

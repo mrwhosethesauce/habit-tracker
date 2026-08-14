@@ -3,6 +3,7 @@ import api from '../api/client';
 import HabitCard from '../components/HabitCard';
 import HabitForm from '../components/HabitForm';
 import HabitsOverview from '../components/HabitsOverview';
+import TodaySummary from '../components/TodaySummary';
 
 export default function DashboardPage() {
   const [habits, setHabits] = useState([]);
@@ -132,6 +133,8 @@ export default function DashboardPage() {
         <p className="text-sm text-gray-600">No habits yet — add your first one above.</p>
       ) : (
         <>
+          <TodaySummary habits={habits} />
+
           <div className="mb-4 flex rounded-md border border-gray-200 p-0.5 w-fit">
             {['list', 'overview'].map((v) => (
               <button

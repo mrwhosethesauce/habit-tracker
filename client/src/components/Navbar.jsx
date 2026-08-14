@@ -25,9 +25,15 @@ export default function Navbar() {
           <Link to="/analytics" className="text-sm text-gray-700 hover:text-indigo-700">
             Analytics
           </Link>
+          <Link to="/guide" className="text-sm text-gray-700 hover:text-indigo-700">
+            Guide
+          </Link>
         </div>
         <div className="flex items-center gap-4">
           {user && <span className="text-sm text-gray-600">{user.email}</span>}
+          <Link to="/settings" className="text-sm text-gray-700 hover:text-indigo-700">
+            Settings
+          </Link>
           <button
             onClick={handleLogout}
             className="text-sm text-gray-700 hover:text-indigo-700"

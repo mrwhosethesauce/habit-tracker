@@ -5,6 +5,7 @@ import Heatmap from '../components/Heatmap';
 import { streakUnitLabel } from '../lib/streakLabel';
 import { describeFrequency } from '../lib/habitSchedule';
 import { habitColor } from '../lib/habitColor';
+import { milestoneFor } from '../lib/milestones';
 
 export default function HabitDetailPage() {
   const { id } = useParams();
@@ -151,6 +152,9 @@ export default function HabitDetailPage() {
         <div className="rounded-lg border border-gray-200 bg-white p-4">
           <p className="text-xs font-medium uppercase tracking-wide text-gray-600">Current streak</p>
           <p className="mt-1 text-2xl font-semibold text-gray-900">
+            {milestoneFor(stats.currentStreak) && (
+              <span title={milestoneFor(stats.currentStreak).label}>{milestoneFor(stats.currentStreak).icon} </span>
+            )}
             {stats.currentStreak} <span className="text-sm font-normal text-gray-600">
               {streakUnitLabel(stats.currentStreak, habit.frequency)}
             </span>
@@ -159,6 +163,9 @@ export default function HabitDetailPage() {
         <div className="rounded-lg border border-gray-200 bg-white p-4">
           <p className="text-xs font-medium uppercase tracking-wide text-gray-600">Longest streak</p>
           <p className="mt-1 text-2xl font-semibold text-gray-900">
+            {milestoneFor(stats.longestStreak) && (
+              <span title={milestoneFor(stats.longestStreak).label}>{milestoneFor(stats.longestStreak).icon} </span>
+            )}
             {stats.longestStreak} <span className="text-sm font-normal text-gray-600">
               {streakUnitLabel(stats.longestStreak, habit.frequency)}
             </span>

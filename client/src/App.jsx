@@ -9,6 +9,8 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import DashboardPage from './pages/DashboardPage';
 import HabitDetailPage from './pages/HabitDetailPage';
 import AnalyticsPage from './pages/AnalyticsPage';
+import SettingsPage from './pages/SettingsPage';
+import GuidePage from './pages/GuidePage';
 
 export default function App() {
   return (
@@ -42,6 +44,22 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <AnalyticsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/guide"
+              element={
+                <ProtectedRoute>
+                  <GuidePage />
                 </ProtectedRoute>
               }
             />

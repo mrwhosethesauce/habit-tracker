@@ -2,10 +2,12 @@ import { Link } from 'react-router-dom';
 import { streakUnitLabel } from '../lib/streakLabel';
 import { describeFrequency } from '../lib/habitSchedule';
 import { habitColor } from '../lib/habitColor';
+import { milestoneFor } from '../lib/milestones';
 
 export default function HabitCard({ habit, onToggle, onAdjustCount, onEdit, onDelete, toggling }) {
   const isCountBased = habit.targetCount > 1;
   const color = habitColor(habit._id);
+  const milestone = milestoneFor(habit.currentStreak);
 
   return (
     <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4">
@@ -25,8 +27,8 @@ export default function HabitCard({ habit, onToggle, onAdjustCount, onEdit, onDe
           {habit.category && (
             <span className="rounded-full bg-gray-100 px-2 py-0.5">{habit.category}</span>
           )}
-          <span>
-            🔥 {habit.currentStreak} {streakUnitLabel(habit.currentStreak, habit.frequency)} streak
+          <span title={milestone?.label}>
+            {milestone?.icon || '🔥'} {habit.currentStreak} {streakUnitLabel(habit.currentStreak, habit.frequency)} streak
           </span>
         </div>
       </div>
