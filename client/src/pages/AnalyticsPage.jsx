@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from 'recharts';
 import api from '../api/client';
+import { habitColor } from '../lib/habitColor';
 
 // Validated light-mode tokens from the dataviz skill's reference palette —
 // this app has no dark mode elsewhere, so charts stay light-only for
@@ -36,14 +37,14 @@ function CompletionTooltip({ active, payload, label }) {
     return (
       <div className="rounded-md border border-gray-200 bg-white px-3 py-2 text-xs shadow-sm">
         <p className="font-medium text-gray-900">{formatTick(label)}</p>
-        <p className="text-gray-500">No daily habits yet</p>
+        <p className="text-gray-600">No daily habits yet</p>
       </div>
     );
   }
   return (
     <div className="rounded-md border border-gray-200 bg-white px-3 py-2 text-xs shadow-sm">
       <p className="font-medium text-gray-900">{formatTick(label)}</p>
-      <p className="text-gray-500">
+      <p className="text-gray-600">
         {point.rate}% &middot; {point.completed}/{point.total} habits
       </p>
     </div>
@@ -52,7 +53,7 @@ function CompletionTooltip({ active, payload, label }) {
 
 function CompletionChart({ series }) {
   if (series.every((p) => p.rate === null)) {
-    return <p className="text-sm text-gray-500">No daily habits to chart yet.</p>;
+    return <p className="text-sm text-gray-600">No daily habits to chart yet.</p>;
   }
   return (
     <ResponsiveContainer width="100%" height={260}>
@@ -92,42 +93,46 @@ function CompletionChart({ series }) {
 
 function Leaderboard({ entries }) {
   if (entries.length === 0) {
-    return <p className="text-sm text-gray-500">No habits yet.</p>;
+    return <p className="text-sm text-gray-600">No habits yet.</p>;
   }
   const max = Math.max(1, ...entries.map((e) => e.longestStreak));
   return (
     <div className="space-y-3">
-      {entries.map((entry, i) => (
-        <Link
-          key={entry.habitId}
-          to={`/habits/${entry.habitId}`}
-          className="block rounded-md hover:bg-gray-50"
-        >
-          <div className="flex items-center gap-3 px-1 py-1.5">
-            <span className="w-5 shrink-0 text-right text-sm font-medium text-gray-400">{i + 1}</span>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-baseline justify-between gap-2">
-                <span className="truncate text-sm font-medium text-gray-900">{entry.name}</span>
-                <span className="shrink-0 text-xs text-gray-500">
-                  {entry.longestStreak} {entry.frequency === 'weekly' ? 'wk' : 'day'} best
-                  {entry.currentStreak > 0 && (
-                    <span className="ml-2 text-gray-400">· {entry.currentStreak} current</span>
-                  )}
-                </span>
-              </div>
-              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
-                <div
-                  className="h-full rounded-full"
-                  style={{
-                    width: `${(entry.longestStreak / max) * 100}%`,
-                    backgroundColor: COLORS.series,
-                  }}
-                />
+      {entries.map((entry, i) => {
+        const color = habitColor(entry.habitId);
+        return (
+          <Link
+            key={entry.habitId}
+            to={`/habits/${entry.habitId}`}
+            className="block rounded-md hover:bg-gray-50"
+          >
+            <div className="flex items-center gap-3 px-1 py-1.5">
+              <span className="w-5 shrink-0 text-right text-sm font-medium text-gray-600">{i + 1}</span>
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: color }} aria-hidden="true" />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="truncate text-sm font-medium text-gray-900">{entry.name}</span>
+                  <span className="shrink-0 text-xs text-gray-600">
+                    {entry.longestStreak} {entry.frequency === 'weekly' ? 'wk' : 'day'} best
+                    {entry.currentStreak > 0 && (
+                      <span className="ml-2 text-gray-600">· {entry.currentStreak} current</span>
+                    )}
+                  </span>
+                </div>
+                <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${(entry.longestStreak / max) * 100}%`,
+                      backgroundColor: color,
+                    }}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        </Link>
-      ))}
+          </Link>
+        );
+      })}
     </div>
   );
 }
@@ -177,7 +182,7 @@ export default function AnalyticsPage() {
                 key={r}
                 onClick={() => setDays(r)}
                 className={`rounded px-2.5 py-1 text-xs font-medium transition ${
-                  days === r ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-50'
+                  days === r ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-50'
                 }`}
               >
                 {r} days
@@ -186,7 +191,7 @@ export default function AnalyticsPage() {
           </div>
         </div>
         {loading ? (
-          <p className="text-sm text-gray-500">Loading…</p>
+          <p className="text-sm text-gray-600">Loading…</p>
         ) : (
           <CompletionChart series={series} />
         )}
@@ -195,7 +200,7 @@ export default function AnalyticsPage() {
       <div className="mt-6 rounded-lg border border-gray-200 bg-white p-4">
         <p className="mb-3 text-sm font-medium text-gray-700">Longest-streak leaderboard</p>
         {loading ? (
-          <p className="text-sm text-gray-500">Loading…</p>
+          <p className="text-sm text-gray-600">Loading…</p>
         ) : (
           <Leaderboard entries={leaderboard} />
         )}

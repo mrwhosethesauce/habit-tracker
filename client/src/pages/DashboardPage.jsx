@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import api from '../api/client';
 import HabitCard from '../components/HabitCard';
 import HabitForm from '../components/HabitForm';
+import HabitsOverview from '../components/HabitsOverview';
 
 export default function DashboardPage() {
   const [habits, setHabits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [togglingId, setTogglingId] = useState(null);
+  const [view, setView] = useState('list'); // 'list' | 'overview'
 
   // null = form hidden. 'new' = create mode. A habit object = edit mode
   // for that habit.
@@ -105,7 +107,7 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-semibold text-gray-900">Your habits</h1>
         <button
           onClick={() => (showForm ? closeForm() : setFormTarget('new'))}
-          className="rounded-md bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-800"
+          className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
         >
           {showForm ? 'Cancel' : '+ Add habit'}
         </button>
@@ -125,23 +127,43 @@ export default function DashboardPage() {
       {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
       {loading ? (
-        <p className="text-sm text-gray-500">Loading…</p>
+        <p className="text-sm text-gray-600">Loading…</p>
       ) : habits.length === 0 ? (
-        <p className="text-sm text-gray-500">No habits yet — add your first one above.</p>
+        <p className="text-sm text-gray-600">No habits yet — add your first one above.</p>
       ) : (
-        <div className="space-y-3">
-          {habits.map((habit) => (
-            <HabitCard
-              key={habit._id}
-              habit={habit}
-              onToggle={handleToggle}
-              onAdjustCount={handleAdjustCount}
-              onEdit={setFormTarget}
-              onDelete={handleDelete}
-              toggling={togglingId === habit._id}
-            />
-          ))}
-        </div>
+        <>
+          <div className="mb-4 flex rounded-md border border-gray-200 p-0.5 w-fit">
+            {['list', 'overview'].map((v) => (
+              <button
+                key={v}
+                onClick={() => setView(v)}
+                className={`rounded px-3 py-1 text-xs font-medium capitalize transition ${
+                  view === v ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+
+          {view === 'overview' ? (
+            <HabitsOverview habits={habits} />
+          ) : (
+            <div className="space-y-3">
+              {habits.map((habit) => (
+                <HabitCard
+                  key={habit._id}
+                  habit={habit}
+                  onToggle={handleToggle}
+                  onAdjustCount={handleAdjustCount}
+                  onEdit={setFormTarget}
+                  onDelete={handleDelete}
+                  toggling={togglingId === habit._id}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -2,16 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
-.habit-heatmap .react-calendar-heatmap .color-empty {
-  fill: #ebedf0;
-}
-.habit-heatmap .react-calendar-heatmap .color-filled {
-  fill: #16a34a;
-}
+/* Cell fill color is set per-cell via transformDayElement (see
+   Heatmap.jsx) so each habit's own color can be used — these rules only
+   cover shape/text, not fill. */
 .habit-heatmap .react-calendar-heatmap text {
   font-size: 6px;
-  fill: #6b7280;
+  fill: #4b5563;
 }
 .habit-heatmap .react-calendar-heatmap rect {
   rx: 2;
+}
+/* Width/height are pinned in JS (see Heatmap.jsx) to the SVG's own
+   viewBox, so every heatmap renders at the same natural cell/text scale
+   regardless of container width. This is just the overflow fallback for
+   when that natural width is wider than a narrow container. */
+.habit-heatmap {
+  max-width: 100%;
+  overflow-x: auto;
 }
