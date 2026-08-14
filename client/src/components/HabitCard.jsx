@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { streakUnitLabel } from '../lib/streakLabel';
 
 export default function HabitCard({ habit, onToggle, onDelete, toggling }) {
   return (
@@ -13,7 +14,7 @@ export default function HabitCard({ habit, onToggle, onDelete, toggling }) {
             <span className="rounded-full bg-gray-100 px-2 py-0.5">{habit.category}</span>
           )}
           <span>
-            🔥 {habit.currentStreak} {habit.currentStreak === 1 ? 'day' : 'days'} streak
+            🔥 {habit.currentStreak} {streakUnitLabel(habit.currentStreak, habit.frequency)} streak
           </span>
         </div>
       </div>

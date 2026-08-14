@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import api from '../api/client';
 import Heatmap from '../components/Heatmap';
+import { streakUnitLabel } from '../lib/streakLabel';
 
 export default function HabitDetailPage() {
   const { id } = useParams();
@@ -95,7 +96,7 @@ export default function HabitDetailPage() {
           <p className="text-xs uppercase tracking-wide text-gray-400">Current streak</p>
           <p className="mt-1 text-2xl font-semibold text-gray-900">
             {stats.currentStreak} <span className="text-sm font-normal text-gray-500">
-              {habit.frequency === 'weekly' ? 'weeks' : 'days'}
+              {streakUnitLabel(stats.currentStreak, habit.frequency)}
             </span>
           </p>
         </div>
@@ -103,7 +104,7 @@ export default function HabitDetailPage() {
           <p className="text-xs uppercase tracking-wide text-gray-400">Longest streak</p>
           <p className="mt-1 text-2xl font-semibold text-gray-900">
             {stats.longestStreak} <span className="text-sm font-normal text-gray-500">
-              {habit.frequency === 'weekly' ? 'weeks' : 'days'}
+              {streakUnitLabel(stats.longestStreak, habit.frequency)}
             </span>
           </p>
         </div>
