@@ -7,8 +7,13 @@ via Mongoose, JWT auth.
 ## Structure
 
 ```
-api/            Express app, deployed as one Vercel serverless function
-  [...path].js  catch-all entry Vercel invokes
+api/            Deployed to Vercel as serverless functions
+  [...path].js  the ONLY file here — catch-all entry, requires ../server/app
+server/         Express app and everything it needs (not deployed directly —
+                 imported by api/[...path].js). Vercel treats every file
+                 under api/ as its own serverless function candidate, so
+                 shared code lives here instead, off Vercel's Hobby-plan
+                 12-function cap.
   app.js        Express app, mounts routers below
   routes/       auth, habits, checkins, analytics
   middleware/   JWT auth guard

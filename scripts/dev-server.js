@@ -4,7 +4,7 @@
 // paired with client/vite.config.js's proxy of /api to this port.
 require('dotenv').config();
 
-const app = require('../api/app');
+const app = require('../server/app');
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
