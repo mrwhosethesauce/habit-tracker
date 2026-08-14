@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../api/client';
 import HabitCard from '../components/HabitCard';
-
-const FREQUENCIES = ['daily', 'weekly'];
+import HabitForm from '../components/HabitForm';
 
 export default function DashboardPage() {
   const [habits, setHabits] = useState([]);
@@ -11,9 +10,6 @@ export default function DashboardPage() {
   const [togglingId, setTogglingId] = useState(null);
 
   const [showForm, setShowForm] = useState(false);
-  const [name, setName] = useState('');
-  const [category, setCategory] = useState('');
-  const [frequency, setFrequency] = useState('daily');
   const [creating, setCreating] = useState(false);
   const [formError, setFormError] = useState('');
 
@@ -32,15 +28,11 @@ export default function DashboardPage() {
     loadHabits();
   }, []);
 
-  const handleCreate = async (e) => {
-    e.preventDefault();
+  const handleCreate = async (values) => {
     setFormError('');
     setCreating(true);
     try {
-      await api.post('/habits', { name, category, frequency });
-      setName('');
-      setCategory('');
-      setFrequency('daily');
+      await api.post('/habits', values);
       setShowForm(false);
       await loadHabits();
     } catch (err) {
@@ -57,6 +49,23 @@ export default function DashboardPage() {
         await api.delete('/checkins', { params: { habitId: habit._id } });
       } else {
         await api.post('/checkins', { habitId: habit._id });
+      }
+      await loadHabits();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to update check-in');
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
+  // For a count-based habit, "toggle" isn't binary — mode picks +1 or -1.
+  const handleAdjustCount = async (habit, mode) => {
+    setTogglingId(habit._id);
+    try {
+      if (mode === 'increment') {
+        await api.post('/checkins', { habitId: habit._id });
+      } else {
+        await api.delete('/checkins', { params: { habitId: habit._id } });
       }
       await loadHabits();
     } catch (err) {
@@ -88,53 +97,7 @@ export default function DashboardPage() {
         </button>
       </div>
 
-      {showForm && (
-        <form onSubmit={handleCreate} className="mb-6 space-y-3 rounded-lg border border-gray-200 bg-white p-4">
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="sm:col-span-1">
-              <label className="mb-1 block text-sm font-medium text-gray-700">Name</label>
-              <input
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none"
-                placeholder="Drink water"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Category (optional)</label>
-              <input
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none"
-                placeholder="Health"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Frequency</label>
-              <select
-                value={frequency}
-                onChange={(e) => setFrequency(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none"
-              >
-                {FREQUENCIES.map((f) => (
-                  <option key={f} value={f}>
-                    {f}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          {formError && <p className="text-sm text-red-600">{formError}</p>}
-          <button
-            type="submit"
-            disabled={creating}
-            className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
-          >
-            {creating ? 'Creating…' : 'Create habit'}
-          </button>
-        </form>
-      )}
+      {showForm && <HabitForm onSubmit={handleCreate} submitting={creating} error={formError} />}
 
       {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
@@ -149,6 +112,7 @@ export default function DashboardPage() {
               key={habit._id}
               habit={habit}
               onToggle={handleToggle}
+              onAdjustCount={handleAdjustCount}
               onDelete={handleDelete}
               toggling={togglingId === habit._id}
             />

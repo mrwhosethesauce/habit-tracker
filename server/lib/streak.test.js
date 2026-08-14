@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateStreaks, diffInDays, addDays, mondayOfWeek } from './streak.js';
+import { calculateStreaks, diffInDays, addDays, mondayOfWeek, weekdayOfUTC } from './streak.js';
 
 describe('helpers', () => {
   it('diffInDays counts whole UTC days regardless of host timezone', () => {
@@ -131,5 +131,99 @@ describe('calculateStreaks — weekly', () => {
       today: '2026-08-13',
     });
     expect(r).toEqual({ currentStreak: 3, longestStreak: 3 });
+  });
+});
+
+describe('calculateStreaks — weekly with timesPerWeek (N times per week)', () => {
+  it('a week only counts once it has at least timesPerWeek check-ins', () => {
+    const r = calculateStreaks({
+      checkInDates: ['2026-08-10', '2026-08-12', '2026-08-14'], // Mon/Wed/Fri, all in one week
+      frequency: 'weekly',
+      timesPerWeek: 3,
+      today: '2026-08-14',
+    });
+    expect(r).toEqual({ currentStreak: 1, longestStreak: 1 });
+  });
+
+  it('grace period: last week hit the target, this week is still short but not over', () => {
+    const r = calculateStreaks({
+      checkInDates: ['2026-08-03', '2026-08-05', '2026-08-07', '2026-08-10', '2026-08-12'],
+      // week of 08-03 (last week): 3 check-ins (satisfied); week of 08-10
+      // (this week, today falls in it): only 2 so far
+      frequency: 'weekly',
+      timesPerWeek: 3,
+      today: '2026-08-13',
+    });
+    expect(r.currentStreak).toBe(1);
+  });
+
+  it('a week with too few check-ins does not count, breaking the chain', () => {
+    const r = calculateStreaks({
+      checkInDates: ['2026-07-27', '2026-07-29', '2026-08-03', '2026-08-10', '2026-08-12'],
+      // week 07-27: 2 (satisfied) — week 08-03: 1 (NOT satisfied, N=2) — week 08-10: 2 (satisfied)
+      frequency: 'weekly',
+      timesPerWeek: 2,
+      today: '2026-08-13',
+    });
+    expect(r).toEqual({ currentStreak: 1, longestStreak: 1 });
+  });
+
+  it('missing timesPerWeek defaults to 1 (unchanged legacy behavior)', () => {
+    const r = calculateStreaks({
+      checkInDates: ['2026-08-10'],
+      frequency: 'weekly',
+      today: '2026-08-10',
+    });
+    expect(r).toEqual({ currentStreak: 1, longestStreak: 1 });
+  });
+});
+
+describe('calculateStreaks — days_of_week (specific weekdays)', () => {
+  // 2026-08-10 is a Monday. daysOfWeek uses JS getUTCDay(): 0=Sun..6=Sat.
+  const MON_WED_FRI = [1, 3, 5];
+
+  it('weekdayOfUTC matches JS Date#getUTCDay() convention', () => {
+    expect(weekdayOfUTC('2026-08-10')).toBe(1); // Monday
+    expect(weekdayOfUTC('2026-08-16')).toBe(0); // Sunday
+  });
+
+  it('non-required days (e.g. Tue/Thu/weekend for a Mon/Wed/Fri habit) never break the streak', () => {
+    const r = calculateStreaks({
+      checkInDates: ['2026-08-10', '2026-08-12', '2026-08-14'], // Mon, Wed, Fri
+      frequency: 'days_of_week',
+      daysOfWeek: MON_WED_FRI,
+      today: '2026-08-14', // Friday
+    });
+    expect(r).toEqual({ currentStreak: 3, longestStreak: 3 });
+  });
+
+  it('grace period: today is a required day and not done yet, but the prior required day was', () => {
+    const r = calculateStreaks({
+      checkInDates: ['2026-08-10', '2026-08-12'], // Mon, Wed done
+      frequency: 'days_of_week',
+      daysOfWeek: MON_WED_FRI,
+      today: '2026-08-14', // Friday — required, not done yet
+    });
+    expect(r.currentStreak).toBe(2);
+  });
+
+  it('breaks when a required day in the past (not today) was missed', () => {
+    const r = calculateStreaks({
+      checkInDates: ['2026-08-10', '2026-08-14'], // Mon done, Wed (required) skipped, Fri done
+      frequency: 'days_of_week',
+      daysOfWeek: MON_WED_FRI,
+      today: '2026-08-14',
+    });
+    expect(r).toEqual({ currentStreak: 1, longestStreak: 1 });
+  });
+
+  it('no grace when today is not itself a required day', () => {
+    const r = calculateStreaks({
+      checkInDates: ['2026-08-10'], // Mon done, Wed (required, in the past) skipped
+      frequency: 'days_of_week',
+      daysOfWeek: MON_WED_FRI,
+      today: '2026-08-13', // Thursday — not a required day
+    });
+    expect(r.currentStreak).toBe(0);
   });
 });

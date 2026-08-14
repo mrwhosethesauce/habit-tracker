@@ -23,6 +23,14 @@ const checkInSchema = new mongoose.Schema({
     required: true,
     match: /^\d{4}-\d{2}-\d{2}$/,
   },
+  // For a plain (non-count-based) habit this is always 1 — one row means
+  // "done." For a count-based habit it accumulates toward the habit's
+  // targetCount (e.g. glasses of water that day).
+  count: {
+    type: Number,
+    min: 1,
+    default: 1,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

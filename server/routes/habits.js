@@ -8,10 +8,39 @@ const { calculateStreaks } = require('../lib/streak');
 const router = express.Router();
 router.use(requireAuth);
 
-const FREQUENCIES = ['daily', 'weekly'];
+const FREQUENCIES = ['daily', 'weekly', 'days_of_week'];
 
 function todayUTC() {
   return new Date().toISOString().slice(0, 10);
+}
+
+// Shared by POST (create) and PUT (update) — only validates fields that
+// are actually present in the request, since PUT allows partial updates.
+function validateFrequencyFields({ frequency, daysOfWeek, timesPerWeek, targetCount }) {
+  if (frequency !== undefined && !FREQUENCIES.includes(frequency)) {
+    return `frequency must be one of: ${FREQUENCIES.join(', ')}`;
+  }
+  if (frequency === 'days_of_week') {
+    if (!Array.isArray(daysOfWeek) || daysOfWeek.length === 0) {
+      return 'daysOfWeek must be a non-empty array of weekday numbers (0=Sun..6=Sat) when frequency is days_of_week';
+    }
+  }
+  if (daysOfWeek !== undefined) {
+    if (!Array.isArray(daysOfWeek) || !daysOfWeek.every((d) => Number.isInteger(d) && d >= 0 && d <= 6)) {
+      return 'daysOfWeek values must be integers 0-6 (Sun-Sat)';
+    }
+  }
+  if (timesPerWeek !== undefined && (!Number.isInteger(timesPerWeek) || timesPerWeek < 1 || timesPerWeek > 7)) {
+    return 'timesPerWeek must be an integer between 1 and 7';
+  }
+  if (targetCount !== undefined && (!Number.isInteger(targetCount) || targetCount < 1)) {
+    return 'targetCount must be an integer of at least 1';
+  }
+  return null;
+}
+
+function streakParamsFor(habit) {
+  return { frequency: habit.frequency, daysOfWeek: habit.daysOfWeek, timesPerWeek: habit.timesPerWeek };
 }
 
 // List view is enriched with today's check-in status + current streak so
@@ -24,22 +53,27 @@ router.get('/', async (req, res) => {
     const habits = await Habit.find({ userId: req.userId }).sort({ createdAt: -1 });
 
     const habitIds = habits.map((h) => h._id);
-    const checkIns = await CheckIn.find({ habitId: { $in: habitIds } }, 'habitId date').lean();
+    const checkIns = await CheckIn.find({ habitId: { $in: habitIds } }, 'habitId date count').lean();
 
-    const datesByHabit = new Map();
+    const checkInsByHabit = new Map();
     for (const c of checkIns) {
       const key = String(c.habitId);
-      if (!datesByHabit.has(key)) datesByHabit.set(key, []);
-      datesByHabit.get(key).push(c.date);
+      if (!checkInsByHabit.has(key)) checkInsByHabit.set(key, []);
+      checkInsByHabit.get(key).push(c);
     }
 
     const today = todayUTC();
     const enriched = habits.map((h) => {
-      const dates = datesByHabit.get(String(h._id)) || [];
-      const { currentStreak } = calculateStreaks({ checkInDates: dates, frequency: h.frequency, today });
+      const habitCheckIns = checkInsByHabit.get(String(h._id)) || [];
+      const todayEntry = habitCheckIns.find((c) => c.date === today);
+      const todayCount = todayEntry ? todayEntry.count : 0;
+      const satisfiedDates = habitCheckIns.filter((c) => c.count >= h.targetCount).map((c) => c.date);
+
+      const { currentStreak } = calculateStreaks({ checkInDates: satisfiedDates, today, ...streakParamsFor(h) });
       return {
         ...h.toObject(),
-        todayCheckedIn: dates.includes(today),
+        todayCheckedIn: todayCount >= h.targetCount,
+        todayCount,
         currentStreak,
       };
     });
@@ -53,13 +87,14 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const { name, category, frequency } = req.body || {};
+    const { name, category, frequency, daysOfWeek, timesPerWeek, targetCount } = req.body || {};
 
     if (!name || !name.trim()) {
       return res.status(400).json({ error: 'Habit name is required' });
     }
-    if (frequency && !FREQUENCIES.includes(frequency)) {
-      return res.status(400).json({ error: `frequency must be one of: ${FREQUENCIES.join(', ')}` });
+    const validationError = validateFrequencyFields({ frequency, daysOfWeek, timesPerWeek, targetCount });
+    if (validationError) {
+      return res.status(400).json({ error: validationError });
     }
 
     await connectDB();
@@ -68,6 +103,9 @@ router.post('/', async (req, res) => {
       name: name.trim(),
       category: (category || '').trim(),
       frequency: frequency || 'daily',
+      daysOfWeek: frequency === 'days_of_week' ? daysOfWeek : undefined,
+      timesPerWeek: timesPerWeek !== undefined ? timesPerWeek : undefined,
+      targetCount: targetCount !== undefined ? targetCount : undefined,
     });
     res.status(201).json(habit);
   } catch (err) {
@@ -85,18 +123,24 @@ router.get('/:id/stats', async (req, res) => {
     if (!habit) return res.status(404).json({ error: 'Habit not found' });
 
     const checkIns = await CheckIn.find({ habitId: habit._id }).sort({ date: 1 });
-    const checkInDates = checkIns.map((c) => c.date);
+    const checkInDates = checkIns.map((c) => c.date); // presence, for the heatmap
+    const satisfiedDates = checkIns.filter((c) => c.count >= habit.targetCount).map((c) => c.date);
+
     const today = todayUTC();
+    const todayEntry = checkIns.find((c) => c.date === today);
+    const todayCount = todayEntry ? todayEntry.count : 0;
+
     const { currentStreak, longestStreak } = calculateStreaks({
-      checkInDates,
-      frequency: habit.frequency,
+      checkInDates: satisfiedDates,
       today,
+      ...streakParamsFor(habit),
     });
 
     res.json({
       habit,
       checkInDates,
-      todayCheckedIn: checkInDates.includes(today),
+      todayCheckedIn: todayCount >= habit.targetCount,
+      todayCount,
       currentStreak,
       longestStreak,
     });
@@ -122,9 +166,10 @@ router.get('/:id', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
-    const { name, category, frequency } = req.body || {};
-    if (frequency && !FREQUENCIES.includes(frequency)) {
-      return res.status(400).json({ error: `frequency must be one of: ${FREQUENCIES.join(', ')}` });
+    const { name, category, frequency, daysOfWeek, timesPerWeek, targetCount } = req.body || {};
+    const validationError = validateFrequencyFields({ frequency, daysOfWeek, timesPerWeek, targetCount });
+    if (validationError) {
+      return res.status(400).json({ error: validationError });
     }
     if (name !== undefined && !name.trim()) {
       return res.status(400).json({ error: 'Habit name cannot be empty' });
@@ -137,6 +182,9 @@ router.put('/:id', async (req, res) => {
     if (name !== undefined) habit.name = name.trim();
     if (category !== undefined) habit.category = category.trim();
     if (frequency !== undefined) habit.frequency = frequency;
+    if (daysOfWeek !== undefined) habit.daysOfWeek = daysOfWeek;
+    if (timesPerWeek !== undefined) habit.timesPerWeek = timesPerWeek;
+    if (targetCount !== undefined) habit.targetCount = targetCount;
 
     await habit.save();
     res.json(habit);
