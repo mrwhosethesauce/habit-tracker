@@ -81,11 +81,21 @@ vercel.json     build + routing config
    mongodb+srv://<user>:<password>@<cluster>.mongodb.net/habittracker?retryWrites=true&w=majority
    ```
 
-### 2. Push this repo to GitHub (or GitLab/Bitbucket)
+### 2. Set up Resend (password-reset emails)
+
+1. Sign up at https://resend.com.
+2. **API Keys** (left sidebar) → **Create API Key** → "Sending access" is
+   enough. Copy the key (starts with `re_`) — shown once.
+3. Without a verified domain, Resend's sandbox only delivers to the email
+   address the Resend account itself signed up with — fine for a
+   single-user deployment. Verify a domain under **Domains** to send to
+   other users' emails too.
+
+### 3. Push this repo to GitHub (or GitLab/Bitbucket)
 
 Vercel deploys from a git provider.
 
-### 3. Import the project in Vercel
+### 4. Import the project in Vercel
 
 1. https://vercel.com/new → import the repo.
 2. **Leave Root Directory as the repo root** — do *not* point it at `client/`.
@@ -95,7 +105,7 @@ Vercel deploys from a git provider.
 3. Framework Preset: Vercel will read `vercel.json`'s `buildCommand` /
    `outputDirectory` — no framework preset needed (set to "Other" if asked).
 
-### 4. Set environment variables
+### 5. Set environment variables
 
 In the Vercel project → **Settings → Environment Variables**, add for
 **Production**, **Preview**, and **Development**:
@@ -105,16 +115,20 @@ In the Vercel project → **Settings → Environment Variables**, add for
 | `MONGODB_URI` | the Atlas connection string from step 1 |
 | `JWT_SECRET` | a long random string (use a *different* one than local dev) |
 | `JWT_EXPIRES_IN` | `7d` (or your preferred token lifetime) |
+| `RESEND_API_KEY` | the API key from step 2 |
 
-### 5. Deploy
+`RESEND_FROM_EMAIL` and `APP_URL` are optional — see `.env.example` for
+when you'd need them.
+
+### 6. Deploy
 
 Trigger a deploy (push to the connected branch, or click Deploy in the
 dashboard). Vercel runs `installCommand` and `buildCommand` from
 `vercel.json`, serves `client/dist` as static output, and deploys
-`api/[...path].js` as the serverless function handling everything under
+`api/index.js` as the serverless function handling everything under
 `/api/*`.
 
-### 6. Verify
+### 7. Verify
 
 - `https://<your-app>.vercel.app/api/health` → `{"ok":true}`
 - Load the app, sign up, create a habit, check it off, and confirm the

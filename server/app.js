@@ -3,6 +3,11 @@ const cors = require('cors');
 
 const app = express();
 
+// Vercel puts the app behind a proxy — without this, req.protocol always
+// reports 'http', which would build password-reset links with the wrong
+// scheme when APP_URL isn't set.
+app.set('trust proxy', true);
+
 app.use(cors());
 app.use(express.json());
 
