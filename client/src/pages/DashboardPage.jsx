@@ -9,8 +9,10 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
   const [togglingId, setTogglingId] = useState(null);
 
-  const [showForm, setShowForm] = useState(false);
-  const [creating, setCreating] = useState(false);
+  // null = form hidden. 'new' = create mode. A habit object = edit mode
+  // for that habit.
+  const [formTarget, setFormTarget] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
 
   const loadHabits = async () => {
@@ -28,17 +30,26 @@ export default function DashboardPage() {
     loadHabits();
   }, []);
 
-  const handleCreate = async (values) => {
+  const closeForm = () => {
+    setFormTarget(null);
     setFormError('');
-    setCreating(true);
+  };
+
+  const handleSave = async (values) => {
+    setFormError('');
+    setSaving(true);
     try {
-      await api.post('/habits', values);
-      setShowForm(false);
+      if (formTarget && formTarget !== 'new') {
+        await api.put(`/habits/${formTarget._id}`, values);
+      } else {
+        await api.post('/habits', values);
+      }
+      closeForm();
       await loadHabits();
     } catch (err) {
-      setFormError(err.response?.data?.error || 'Failed to create habit');
+      setFormError(err.response?.data?.error || 'Failed to save habit');
     } finally {
-      setCreating(false);
+      setSaving(false);
     }
   };
 
@@ -85,19 +96,31 @@ export default function DashboardPage() {
     }
   };
 
+  const showForm = formTarget !== null;
+  const editingHabit = formTarget && formTarget !== 'new' ? formTarget : null;
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">Your habits</h1>
         <button
-          onClick={() => setShowForm((v) => !v)}
+          onClick={() => (showForm ? closeForm() : setFormTarget('new'))}
           className="rounded-md bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-800"
         >
           {showForm ? 'Cancel' : '+ Add habit'}
         </button>
       </div>
 
-      {showForm && <HabitForm onSubmit={handleCreate} submitting={creating} error={formError} />}
+      {showForm && (
+        <HabitForm
+          key={editingHabit?._id ?? 'new'}
+          onSubmit={handleSave}
+          onCancel={closeForm}
+          submitting={saving}
+          error={formError}
+          initialHabit={editingHabit}
+        />
+      )}
 
       {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
@@ -113,6 +136,7 @@ export default function DashboardPage() {
               habit={habit}
               onToggle={handleToggle}
               onAdjustCount={handleAdjustCount}
+              onEdit={setFormTarget}
               onDelete={handleDelete}
               toggling={togglingId === habit._id}
             />

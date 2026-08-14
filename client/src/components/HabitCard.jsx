@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { streakUnitLabel } from '../lib/streakLabel';
 import { describeFrequency } from '../lib/habitSchedule';
 
-export default function HabitCard({ habit, onToggle, onAdjustCount, onDelete, toggling }) {
+export default function HabitCard({ habit, onToggle, onAdjustCount, onEdit, onDelete, toggling }) {
   const isCountBased = habit.targetCount > 1;
 
   return (
@@ -63,6 +63,13 @@ export default function HabitCard({ habit, onToggle, onAdjustCount, onDelete, to
             {habit.todayCheckedIn ? 'Done today' : 'Mark done'}
           </button>
         )}
+        <button
+          onClick={() => onEdit(habit)}
+          className="text-xs text-gray-400 hover:text-gray-700"
+          title="Edit habit"
+        >
+          Edit
+        </button>
         <button
           onClick={() => onDelete(habit)}
           className="text-xs text-gray-400 hover:text-red-600"
