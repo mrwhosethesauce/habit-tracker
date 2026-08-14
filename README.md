@@ -8,11 +8,17 @@ via Mongoose, JWT auth.
 
 ```
 api/            Deployed to Vercel as serverless functions
-  [...path].js  the ONLY file here — catch-all entry, requires ../server/app
+  index.js      the ONLY file here — entry point, requires ../server/app.
+                 Routed to by vercel.json's "/api/:path*" -> "/api" rewrite
+                 (a bracket catch-all filename here, e.g. [...path].js,
+                 was tried first but made Vercel's build auto-generate a
+                 routing rule that only matched single-segment /api/*
+                 paths — /api/health worked, /api/auth/login didn't. The
+                 explicit rewrite avoids relying on that inference.)
 server/         Express app and everything it needs (not deployed directly —
-                 imported by api/[...path].js). Vercel treats every file
-                 under api/ as its own serverless function candidate, so
-                 shared code lives here instead, off Vercel's Hobby-plan
+                 imported by api/index.js). Vercel treats every file under
+                 api/ as its own serverless function candidate, so shared
+                 code lives here instead, off Vercel's Hobby-plan
                  12-function cap.
   app.js        Express app, mounts routers below
   routes/       auth, habits, checkins, analytics
