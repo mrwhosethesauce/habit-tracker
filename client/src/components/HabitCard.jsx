@@ -10,7 +10,7 @@ export default function HabitCard({ habit, onToggle, onAdjustCount, onEdit, onDe
   const milestone = milestoneFor(habit.currentStreak);
 
   return (
-    <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4">
+    <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <span
@@ -18,14 +18,14 @@ export default function HabitCard({ habit, onToggle, onAdjustCount, onEdit, onDe
             style={{ backgroundColor: color }}
             aria-hidden="true"
           />
-          <Link to={`/habits/${habit._id}`} className="font-medium text-gray-900 hover:underline">
+          <Link to={`/habits/${habit._id}`} className="font-medium text-gray-900 hover:underline dark:text-gray-100">
             {habit.name}
           </Link>
         </div>
-        <div className="mt-1 flex flex-wrap items-center gap-2 pl-[1.125rem] text-xs text-gray-600">
-          <span className="rounded-full bg-gray-100 px-2 py-0.5">{describeFrequency(habit)}</span>
+        <div className="mt-1 flex flex-wrap items-center gap-2 pl-[1.125rem] text-xs text-gray-600 dark:text-gray-400">
+          <span className="rounded-full bg-gray-100 px-2 py-0.5 dark:bg-gray-700">{describeFrequency(habit)}</span>
           {habit.category && (
-            <span className="rounded-full bg-gray-100 px-2 py-0.5">{habit.category}</span>
+            <span className="rounded-full bg-gray-100 px-2 py-0.5 dark:bg-gray-700">{habit.category}</span>
           )}
           <span title={milestone?.label}>
             {milestone?.icon || '🔥'} {habit.currentStreak} {streakUnitLabel(habit.currentStreak, habit.frequency)} streak
@@ -39,14 +39,14 @@ export default function HabitCard({ habit, onToggle, onAdjustCount, onEdit, onDe
             <button
               onClick={() => onAdjustCount(habit, 'decrement')}
               disabled={toggling || habit.todayCount === 0}
-              className="flex h-7 w-7 items-center justify-center rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+              className="flex h-7 w-7 items-center justify-center rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
               aria-label="Decrease"
             >
               −
             </button>
             <span
               className={`min-w-[3.5rem] text-center text-sm font-semibold ${
-                habit.todayCheckedIn ? 'text-green-700' : 'text-gray-800'
+                habit.todayCheckedIn ? 'text-green-700 dark:text-green-400' : 'text-gray-800 dark:text-gray-200'
               }`}
             >
               {habit.todayCount} / {habit.targetCount}
@@ -54,7 +54,7 @@ export default function HabitCard({ habit, onToggle, onAdjustCount, onEdit, onDe
             <button
               onClick={() => onAdjustCount(habit, 'increment')}
               disabled={toggling}
-              className="flex h-7 w-7 items-center justify-center rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+              className="flex h-7 w-7 items-center justify-center rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
               aria-label="Increase"
             >
               +
@@ -68,7 +68,7 @@ export default function HabitCard({ habit, onToggle, onAdjustCount, onEdit, onDe
             className={`rounded-md px-3 py-1.5 text-sm font-medium transition disabled:opacity-50 ${
               habit.todayCheckedIn
                 ? 'bg-green-600 text-white hover:bg-green-700'
-                : 'border border-gray-300 text-gray-800 hover:bg-gray-50'
+                : 'border border-gray-300 text-gray-800 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700'
             }`}
           >
             {habit.todayCheckedIn ? 'Done today' : 'Mark done'}
@@ -76,14 +76,14 @@ export default function HabitCard({ habit, onToggle, onAdjustCount, onEdit, onDe
         )}
         <button
           onClick={() => onEdit(habit)}
-          className="text-xs text-gray-600 hover:text-indigo-700"
+          className="text-xs text-gray-600 hover:text-indigo-700 dark:text-gray-400 dark:hover:text-indigo-400"
           title="Edit habit"
         >
           Edit
         </button>
         <button
           onClick={() => onDelete(habit)}
-          className="text-xs text-gray-600 hover:text-red-600"
+          className="text-xs text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
           title="Delete habit"
         >
           Delete

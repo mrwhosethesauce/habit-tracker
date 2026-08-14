@@ -105,7 +105,7 @@ export default function DashboardPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Your habits</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Your habits</h1>
         <button
           onClick={() => (showForm ? closeForm() : setFormTarget('new'))}
           className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
@@ -125,23 +125,23 @@ export default function DashboardPage() {
         />
       )}
 
-      {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
+      {error && <p className="mb-4 text-sm text-red-600 dark:text-red-400">{error}</p>}
 
       {loading ? (
-        <p className="text-sm text-gray-600">Loading…</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400">Loading…</p>
       ) : habits.length === 0 ? (
-        <p className="text-sm text-gray-600">No habits yet — add your first one above.</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400">No habits yet — add your first one above.</p>
       ) : (
         <>
           <TodaySummary habits={habits} />
 
-          <div className="mb-4 flex rounded-md border border-gray-200 p-0.5 w-fit">
+          <div className="mb-4 flex rounded-md border border-gray-200 p-0.5 w-fit dark:border-gray-700">
             {['list', 'overview'].map((v) => (
               <button
                 key={v}
                 onClick={() => setView(v)}
                 className={`rounded px-3 py-1 text-xs font-medium capitalize transition ${
-                  view === v ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-50'
+                  view === v ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700'
                 }`}
               >
                 {v}

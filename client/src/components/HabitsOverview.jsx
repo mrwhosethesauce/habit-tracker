@@ -40,28 +40,28 @@ export default function HabitsOverview({ habits }) {
   }, [habits.map((h) => h._id).join(',')]);
 
   if (loading) {
-    return <p className="text-sm text-gray-600">Loading…</p>;
+    return <p className="text-sm text-gray-600 dark:text-gray-400">Loading…</p>;
   }
 
   if (error) {
-    return <p className="text-sm text-red-600">{error}</p>;
+    return <p className="text-sm text-red-600 dark:text-red-400">{error}</p>;
   }
 
   return (
-    <div className="space-y-4 rounded-lg border border-gray-200 bg-white p-4">
-      <p className="text-xs text-gray-600">Last {OVERVIEW_DAYS} days, all habits</p>
+    <div className="space-y-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+      <p className="text-xs text-gray-600 dark:text-gray-400">Last {OVERVIEW_DAYS} days, all habits</p>
       {habits.map((habit) => {
         const color = habitColor(habit._id);
         return (
-          <div key={habit._id} className="flex items-start gap-3 border-t border-gray-100 pt-4 first:border-t-0 first:pt-0">
+          <div key={habit._id} className="flex items-start gap-3 border-t border-gray-100 pt-4 first:border-t-0 first:pt-0 dark:border-gray-700">
             <div className="w-36 shrink-0">
               <div className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: color }} aria-hidden="true" />
-                <Link to={`/habits/${habit._id}`} className="truncate text-sm font-medium text-gray-900 hover:underline">
+                <Link to={`/habits/${habit._id}`} className="truncate text-sm font-medium text-gray-900 hover:underline dark:text-gray-100">
                   {habit.name}
                 </Link>
               </div>
-              <p className="mt-0.5 pl-[1.125rem] text-xs text-gray-600">{describeFrequency(habit)}</p>
+              <p className="mt-0.5 pl-[1.125rem] text-xs text-gray-600 dark:text-gray-400">{describeFrequency(habit)}</p>
             </div>
             <div className="min-w-0 flex-1 overflow-x-auto">
               <Heatmap

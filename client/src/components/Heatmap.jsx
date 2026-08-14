@@ -1,8 +1,10 @@
 import { cloneElement, useEffect, useRef } from 'react';
 import CalendarHeatmap from 'react-calendar-heatmap';
 import 'react-calendar-heatmap/dist/styles.css';
+import { useTheme } from '../context/ThemeContext';
 
-const EMPTY_FILL = '#ebedf0';
+const EMPTY_FILL_LIGHT = '#ebedf0';
+const EMPTY_FILL_DARK = '#374151'; // gray-700, distinguishable from the gray-800 card surface
 
 // GitHub-style contribution heatmap. `checkInDates` is the raw list of
 // 'YYYY-MM-DD' UTC date strings from the stats endpoint. `color` fills the
@@ -12,6 +14,8 @@ const EMPTY_FILL = '#ebedf0';
 // `days` controls the window shown (defaults to a full year).
 export default function Heatmap({ checkInDates, color = '#16a34a', days = 365, showWeekdayLabels = true }) {
   const containerRef = useRef(null);
+  const { theme } = useTheme();
+  const emptyFill = theme === 'dark' ? EMPTY_FILL_DARK : EMPTY_FILL_LIGHT;
 
   // The library's <svg> only ever sets a `viewBox`, no width/height — left
   // alone, a block-level SVG with no intrinsic size stretches to fill its
@@ -51,7 +55,7 @@ export default function Heatmap({ checkInDates, color = '#16a34a', days = 365, s
         values={values}
         classForValue={() => 'color-empty'}
         transformDayElement={(element, value) =>
-          cloneElement(element, { style: { fill: value ? color : EMPTY_FILL } })
+          cloneElement(element, { style: { fill: value ? color : emptyFill } })
         }
         showWeekdayLabels={showWeekdayLabels}
         titleForValue={(value) => (value ? `${value.date} — done` : undefined)}

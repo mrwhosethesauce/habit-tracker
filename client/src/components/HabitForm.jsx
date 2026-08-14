@@ -8,7 +8,7 @@ const FREQUENCIES = [
 ];
 
 const inputClass =
-  'w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none';
+  'w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100';
 
 // `initialHabit` switches this into edit mode: fields are pre-populated
 // from it and the submit button reads "Save changes" instead of "Create
@@ -49,10 +49,10 @@ export default function HabitForm({ onSubmit, onCancel, submitting, error, initi
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-6 space-y-3 rounded-lg border border-gray-200 bg-white p-4">
+    <form onSubmit={handleSubmit} className="mb-6 space-y-3 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
       <div className="grid gap-3 sm:grid-cols-3">
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Name</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
           <input
             required
             value={name}
@@ -62,7 +62,7 @@ export default function HabitForm({ onSubmit, onCancel, submitting, error, initi
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Category (optional)</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Category (optional)</label>
           <input
             value={category}
             onChange={(e) => setCategory(e.target.value)}
@@ -71,7 +71,7 @@ export default function HabitForm({ onSubmit, onCancel, submitting, error, initi
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Frequency</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Frequency</label>
           <select value={frequency} onChange={(e) => setFrequency(e.target.value)} className={inputClass}>
             {FREQUENCIES.map((f) => (
               <option key={f.value} value={f.value}>
@@ -84,7 +84,7 @@ export default function HabitForm({ onSubmit, onCancel, submitting, error, initi
 
       {frequency === 'weekly' && (
         <div className="max-w-[10rem]">
-          <label className="mb-1 block text-sm font-medium text-gray-700">Times per week</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Times per week</label>
           <input
             type="number"
             min={1}
@@ -98,7 +98,7 @@ export default function HabitForm({ onSubmit, onCancel, submitting, error, initi
 
       {frequency === 'days_of_week' && (
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Which days</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Which days</label>
           <div className="flex flex-wrap gap-2">
             {WEEKDAY_LABELS.map((label, idx) => (
               <button
@@ -108,7 +108,7 @@ export default function HabitForm({ onSubmit, onCancel, submitting, error, initi
                 className={`rounded-md border px-3 py-1.5 text-sm transition ${
                   daysOfWeek.includes(idx)
                     ? 'border-indigo-600 bg-indigo-600 text-white'
-                    : 'border-gray-300 text-gray-600 hover:bg-gray-50'
+                    : 'border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700'
                 }`}
               >
                 {label}
@@ -119,13 +119,13 @@ export default function HabitForm({ onSubmit, onCancel, submitting, error, initi
       )}
 
       <div>
-        <label className="flex items-center gap-2 text-sm text-gray-700">
+        <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
           <input type="checkbox" checked={countBased} onChange={(e) => setCountBased(e.target.checked)} />
           Track a number instead of just done/not done (e.g. glasses of water)
         </label>
         {countBased && (
           <div className="mt-2 max-w-[10rem]">
-            <label className="mb-1 block text-sm font-medium text-gray-700">Target per day</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Target per day</label>
             <input
               type="number"
               min={2}
@@ -137,7 +137,7 @@ export default function HabitForm({ onSubmit, onCancel, submitting, error, initi
         )}
       </div>
 
-      {(localError || error) && <p className="text-sm text-red-600">{localError || error}</p>}
+      {(localError || error) && <p className="text-sm text-red-600 dark:text-red-400">{localError || error}</p>}
       <div className="flex gap-2">
         <button
           type="submit"
@@ -150,7 +150,7 @@ export default function HabitForm({ onSubmit, onCancel, submitting, error, initi
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
           >
             Cancel
           </button>

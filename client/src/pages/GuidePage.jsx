@@ -102,14 +102,14 @@ const SECTIONS = [
 export default function GuidePage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <h1 className="mb-2 text-2xl font-semibold text-gray-900">Guide</h1>
-      <p className="mb-6 text-sm text-gray-600">How the habit tracker's features work.</p>
+      <h1 className="mb-2 text-2xl font-semibold text-gray-900 dark:text-gray-100">Guide</h1>
+      <p className="mb-6 text-sm text-gray-600 dark:text-gray-400">How the habit tracker's features work.</p>
 
       <div className="space-y-3">
         {SECTIONS.map((s) => (
-          <div key={s.q} className="rounded-lg border border-gray-200 bg-white p-4">
-            <p className="font-medium text-gray-900">{s.q}</p>
-            <div className="mt-1.5 space-y-1.5 text-sm text-gray-700">{s.a}</div>
+          <div key={s.q} className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+            <p className="font-medium text-gray-900 dark:text-gray-100">{s.q}</p>
+            <div className="mt-1.5 space-y-1.5 text-sm text-gray-700 dark:text-gray-300">{s.a}</div>
           </div>
         ))}
       </div>

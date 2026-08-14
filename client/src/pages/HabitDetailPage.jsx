@@ -63,14 +63,14 @@ export default function HabitDetailPage() {
   };
 
   if (loading) {
-    return <div className="mx-auto max-w-4xl px-4 py-8 text-sm text-gray-600">Loading…</div>;
+    return <div className="mx-auto max-w-4xl px-4 py-8 text-sm text-gray-600 dark:text-gray-400">Loading…</div>;
   }
 
   if (error && !stats) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-8">
-        <p className="text-sm text-red-600">{error}</p>
-        <Link to="/" className="mt-4 inline-block text-sm text-gray-700 hover:underline">
+        <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        <Link to="/" className="mt-4 inline-block text-sm text-gray-700 hover:underline dark:text-gray-300">
           ← Back to dashboard
         </Link>
       </div>
@@ -83,7 +83,7 @@ export default function HabitDetailPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <Link to="/" className="text-sm text-gray-700 hover:underline">
+      <Link to="/" className="text-sm text-gray-700 hover:underline dark:text-gray-300">
         ← Back to dashboard
       </Link>
 
@@ -95,12 +95,12 @@ export default function HabitDetailPage() {
               style={{ backgroundColor: color }}
               aria-hidden="true"
             />
-            <h1 className="text-2xl font-semibold text-gray-900">{habit.name}</h1>
+            <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{habit.name}</h1>
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-2 pl-[1.375rem] text-xs text-gray-600">
-            <span className="rounded-full bg-gray-100 px-2 py-0.5">{describeFrequency(habit)}</span>
+          <div className="mt-1 flex flex-wrap items-center gap-2 pl-[1.375rem] text-xs text-gray-600 dark:text-gray-400">
+            <span className="rounded-full bg-gray-100 px-2 py-0.5 dark:bg-gray-700">{describeFrequency(habit)}</span>
             {habit.category && (
-              <span className="rounded-full bg-gray-100 px-2 py-0.5">{habit.category}</span>
+              <span className="rounded-full bg-gray-100 px-2 py-0.5 dark:bg-gray-700">{habit.category}</span>
             )}
           </div>
         </div>
@@ -110,14 +110,14 @@ export default function HabitDetailPage() {
             <button
               onClick={() => handleAdjustCount('decrement')}
               disabled={toggling || stats.todayCount === 0}
-              className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+              className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
               aria-label="Decrease"
             >
               −
             </button>
             <span
               className={`min-w-[4rem] text-center text-sm font-semibold ${
-                stats.todayCheckedIn ? 'text-green-700' : 'text-gray-800'
+                stats.todayCheckedIn ? 'text-green-700 dark:text-green-400' : 'text-gray-800 dark:text-gray-200'
               }`}
             >
               {stats.todayCount} / {habit.targetCount}
@@ -125,7 +125,7 @@ export default function HabitDetailPage() {
             <button
               onClick={() => handleAdjustCount('increment')}
               disabled={toggling}
-              className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+              className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
               aria-label="Increase"
             >
               +
@@ -138,7 +138,7 @@ export default function HabitDetailPage() {
             className={`rounded-md px-4 py-2 text-sm font-medium transition disabled:opacity-50 ${
               stats.todayCheckedIn
                 ? 'bg-green-600 text-white hover:bg-green-700'
-                : 'border border-gray-300 text-gray-800 hover:bg-gray-50'
+                : 'border border-gray-300 text-gray-800 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700'
             }`}
           >
             {stats.todayCheckedIn ? 'Done today' : 'Mark done'}
@@ -146,35 +146,35 @@ export default function HabitDetailPage() {
         )}
       </div>
 
-      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-4 text-sm text-red-600 dark:text-red-400">{error}</p>}
 
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-2">
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-600">Current streak</p>
-          <p className="mt-1 text-2xl font-semibold text-gray-900">
+        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-400">Current streak</p>
+          <p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-gray-100">
             {milestoneFor(stats.currentStreak) && (
               <span title={milestoneFor(stats.currentStreak).label}>{milestoneFor(stats.currentStreak).icon} </span>
             )}
-            {stats.currentStreak} <span className="text-sm font-normal text-gray-600">
+            {stats.currentStreak} <span className="text-sm font-normal text-gray-600 dark:text-gray-400">
               {streakUnitLabel(stats.currentStreak, habit.frequency)}
             </span>
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-600">Longest streak</p>
-          <p className="mt-1 text-2xl font-semibold text-gray-900">
+        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-600 dark:text-gray-400">Longest streak</p>
+          <p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-gray-100">
             {milestoneFor(stats.longestStreak) && (
               <span title={milestoneFor(stats.longestStreak).label}>{milestoneFor(stats.longestStreak).icon} </span>
             )}
-            {stats.longestStreak} <span className="text-sm font-normal text-gray-600">
+            {stats.longestStreak} <span className="text-sm font-normal text-gray-600 dark:text-gray-400">
               {streakUnitLabel(stats.longestStreak, habit.frequency)}
             </span>
           </p>
         </div>
       </div>
 
-      <div className="mt-6 rounded-lg border border-gray-200 bg-white p-4">
-        <p className="mb-3 text-sm font-medium text-gray-800">Activity</p>
+      <div className="mt-6 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+        <p className="mb-3 text-sm font-medium text-gray-800 dark:text-gray-200">Activity</p>
         <Heatmap checkInDates={stats.checkInDates} color={color} />
       </div>
     </div>

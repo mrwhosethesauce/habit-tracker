@@ -9,6 +9,9 @@
   font-size: 6px;
   fill: #4b5563;
 }
+.dark .habit-heatmap .react-calendar-heatmap text {
+  fill: #9ca3af;
+}
 .habit-heatmap .react-calendar-heatmap rect {
   rx: 2;
 }
